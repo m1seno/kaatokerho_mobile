@@ -7,10 +7,13 @@ import * as SecureStore from "expo-secure-store";
 
 const BASE_URL = "http://192.168.50.101:8080"; 
 
+// Luo axios-instanssi perus-URL:llä
 export const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: BASE_URL
 });
 
+// https://docs.expo.dev/versions/latest/sdk/securestore/#securestoregetitemasynckey-options
+// Lisää access token jokaisen pyynnön otsikkoon
 api.interceptors.request.use(async (config) => {
   const token = await SecureStore.getItemAsync("accessToken");
   if (token) {
