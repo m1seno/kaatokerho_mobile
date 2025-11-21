@@ -1,13 +1,24 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import LoginScreen from "../screens/LoginScreen";
 
-const AuthNavigator: React.FC = () => {
-  // Tässä tulee myöhemmin Stack-navigaatio,
-  // jonka alussa on LoginScreen
+export type AuthStackParamList = {
+  Login: undefined;
+};
+
+const Stack = createNativeStackNavigator<AuthStackParamList>();
+
+const AuthNavigator = () => {
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>AuthNavigator placeholder - tänne tulee Login-näkymä</Text>
-    </View>
+    <Stack.Navigator
+      id={undefined}
+      screenOptions={{
+        headerShown: false,
+        animation: "slide_from_right",
+      }}
+    >
+      <Stack.Screen name="Login" component={LoginScreen} />
+    </Stack.Navigator>
   );
 };
 
