@@ -1,5 +1,7 @@
 import React, { useEffect, PropsWithChildren } from "react";
+// https://github.com/pmndrs/zustand
 import { create } from "zustand";
+// https://docs.expo.dev/versions/latest/sdk/securestore/
 import * as SecureStore from "expo-secure-store";
 import { api } from "../services/api";
 
@@ -64,23 +66,19 @@ export const useAuthStore = create<AuthState>((set) => ({
   // Kirjautuminen käyttäjänimellä + salasanalla
   login: async (username, password) => {
     try {
-      const res = await api.post<{token: string; keilaajaId: number}>(
+      const res = await api.post<{ token: string; keilaaja: User }>(
         "/api/login",
-        { username, password }
+        { kayttajanimi: username, salasana: password }
       );
 
-      const { token, keilaajaId } = res.data;
+      const { token, keilaaja } = res.data;
 
       await SecureStore.setItemAsync("accessToken", token);
-      await SecureStore.setItemAsync("keilaajaId", String(keilaajaId));
-
-      // Haetaan heti käyttäjän tiedot, jotta UI saa admin-tiedon yms.
-      const userRes = await api.get<User>(`/api/keilaaja/${keilaajaId}`);
-      const user = userRes.data;
+      await SecureStore.setItemAsync("keilaajaId", String(keilaaja.keilaajaId));
 
 
       set({
-        user,
+        user: keilaaja,
         accessToken: token,
       });
 
