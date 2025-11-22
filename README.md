@@ -5,13 +5,13 @@
 ```
 src/
   navigation/
-    RootNavigator.tsx        # Pää: näyttää joko AuthStackin tai MainTabit
-    AuthNavigator.tsx        # Login-flow
-    MainTabNavigator.tsx     # Alapalkin tabit: Home, Sarjataulukko, Kalenteri, Tilastot, Admin
+    ✅ RootNavigator.tsx        # Pää: näyttää joko AuthStackin tai MainTabit 
+    ✅ AuthNavigator.tsx        # Login-flow
+    ✅ MainTabNavigator.tsx     # Alapalkin tabit: Home, Sarjataulukko, Kalenteri, Tilastot, Admin
 
   screens/
     auth/
-      LoginScreen.tsx        # Login + optio biometriseen
+      ✅ LoginScreen.tsx        # Login + optio biometriseen
     home/
       HomeScreen.tsx         # Etusivu: tilanne + seuraava GP
     standings/
@@ -57,7 +57,7 @@ src/
       InfoChip.tsx           # Pieni “badge”-tyyppinen label
 
   services/
-    api.ts                   # axios-instanssi (baseURL + JWT-header)
+    ✅ api.ts                   # axios-instanssi (baseURL + JWT-header)
     authService.ts           # login, /me
     seasonService.ts         # käyttäjän kausiyhteenveto, sarjataulukko
     gpService.ts             # GP-listaus, gp-by-id, admin-CRUD
@@ -65,7 +65,7 @@ src/
     notificationsService.ts  # expo-notifications-integraatio (kun siihen asti päästään)
 
   store/
-    AuthStore.ts             # käyttäjä, token, rooli, login/logout
+    ✅ AuthStore.ts             # käyttäjä, token, rooli, login/logout
 
   hooks/
     useAuth.ts               # helppo hook AuthStoreen
