@@ -105,6 +105,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
+// Käsittele globaalisti 401 Unauthorized -virheet (esim. token vanhentunut)
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      const logout = useAuthStore.getState().logout;
+      await logout();
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Välitetään App.tsx:lle, jotta voidaan suorittaa restoreSession käynnistyksessä
 export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const restoreSession = useAuthStore((s) => s.restoreSession);
