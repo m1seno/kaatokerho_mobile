@@ -9,6 +9,7 @@ import StandingsScreen from "../screens/StandingsScreen";
 import CalendarScreen from "../screens/CalendarScreen";
 import StatsScreen from "../screens/StatsScreen";
 import AdminScreen from "../screens/AdminScreen";
+import LogoutMenu from "../components/LogoutMenu";
 
 export type MainTabParamList = {
   Home: undefined;
@@ -67,7 +68,8 @@ const MainTabNavigator: React.FC = () => {
     <Tab.Navigator
       id ={undefined}
       screenOptions={({ route }) => ({
-        headerShown: false,
+        headerShown: true,
+        headerRight: () => <LogoutMenu />,
         tabBarActiveTintColor: appColors.primary,
         tabBarInactiveTintColor: "#9CA3AF",
         tabBarLabelStyle: { fontSize: 12 },
