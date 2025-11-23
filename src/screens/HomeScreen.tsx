@@ -6,6 +6,7 @@ import { layout } from "../styles/layout";
 import { appColors } from "../styles";
 import { useAuthStore } from "../store/AuthStore";
 import { api } from "../services/api";
+import { formatDateFi } from "../utils/date";
 
 type StandingsRow = {
   sija: number;
@@ -111,11 +112,11 @@ const HomeScreen: React.FC = () => {
     } else {
       return (
         <Card style={{ marginBottom: 16 }}>
-          <Card.Title title="Kausitilanteesi" />
+          <Card.Title title="Kausitilanteesi" titleVariant="titleLarge" />
           <Card.Content>
-            <Text> Sijoitus: {seasonSummary.sija}</Text>
-            <Text> Pisteet: {seasonSummary.pisteet}</Text>
-            <Text> Sarjakeskiarvo: {seasonSummary.kaSarja.toFixed(2)}</Text>
+            <Text style={{fontWeight: "bold"}}> Sijoitus: {seasonSummary.sija}</Text>
+            <Text style={{fontWeight: "bold"}}> Pisteet: {seasonSummary.pisteet}</Text>
+            <Text style={{fontWeight: "bold"}}> Sarjakeskiarvo: {seasonSummary.kaSarja.toFixed(2)}</Text>
           </Card.Content>
         </Card>
       );
@@ -136,12 +137,12 @@ const HomeScreen: React.FC = () => {
 
     return (
       <Card style={{ marginBottom: 16 }}>
-        <Card.Title title="Seuraava GP" />
+        <Card.Title title="Seuraava GP" titleVariant="titleLarge"/>
         <Card.Content>
-          <Text>GP: {nextGp.jarjestysnumero}</Text>
-          <Text>Päivämäärä: {nextGp.pvm}</Text>
-          <Text>Paikka: {nextGp.keilahalliNimi}</Text>
-          <Text>Kultainen GP: {nextGp.onKultainenGp ? "Kyllä" : "Ei"}</Text>
+          <Text style={{fontWeight: "bold"}}>GP: {nextGp.jarjestysnumero}</Text>
+          <Text style={{fontWeight: "bold"}}>Päivämäärä: {nextGp.pvm}</Text>
+          <Text style={{fontWeight: "bold"}}>Paikka: {nextGp.keilahalliNimi}</Text>
+          <Text style={{fontWeight: "bold"}}>Kultainen GP: {nextGp.onKultainenGp ? "✅" : "❌"}</Text>
         </Card.Content>
       </Card>
     );
