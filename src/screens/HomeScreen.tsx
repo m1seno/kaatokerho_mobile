@@ -123,6 +123,7 @@ const HomeScreen: React.FC = () => {
     }
   };
 
+  // Seuraava GP -kortti renderöidään
   const renderNextGpCard = () => {
     if (!nextGp) {
       return (
@@ -140,7 +141,7 @@ const HomeScreen: React.FC = () => {
         <Card.Title title="Seuraava GP" titleVariant="titleLarge"/>
         <Card.Content>
           <Text style={{fontWeight: "bold"}}>GP: {nextGp.jarjestysnumero}</Text>
-          <Text style={{fontWeight: "bold"}}>Päivämäärä: {nextGp.pvm}</Text>
+          <Text style={{fontWeight: "bold"}}>Päivämäärä: {formatDateFi(nextGp.pvm)}</Text>
           <Text style={{fontWeight: "bold"}}>Paikka: {nextGp.keilahalliNimi}</Text>
           <Text style={{fontWeight: "bold"}}>Kultainen GP: {nextGp.onKultainenGp ? "✅" : "❌"}</Text>
         </Card.Content>
