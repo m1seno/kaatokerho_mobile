@@ -4,24 +4,12 @@ import { ActivityIndicator, DataTable, Text } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { appColors } from "../styles";
 import { api } from "../services/api";
-import { formatDayMonthFi } from "../utils/date";
-
-type Calendar = {
-  gpId: number;
-  jarjestysnumero: number;
-  pvm: string; // ISO date string
-  keilahalli: string;
-  voittaja: string | null;
-  voittotulos: number | null;
-};
-
-type Season = {
-  kausiId: number;
-  nimi: String;
-  gpMaara: number;
-  suunniteltuGpMaara: number;
-  osallistujamaara: number;
-};
+import { Season, getCurrentSeason } from "../services/seasonService";
+import {
+  Calendar,
+  getCalendarForCurrentSeason,
+} from "../services/calendarService";
+import { formatDateFi } from "../utils/date";
 
 const CalendarScreen: React.FC = () => {
   const [calendar, setCalendar] = useState<Calendar[]>([]);
@@ -33,11 +21,12 @@ const CalendarScreen: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get<Calendar[]>("/api/kalenteri/current");
-      setCalendar(res.data);
-
-      const seasonRes = await api.get<Season>("/api/kausi/current");
-      setSeason(seasonRes.data);
+      const [calendarData, seasonData] = await Promise.all([
+        getCalendarForCurrentSeason(),
+        getCurrentSeason(),
+      ]);
+      setCalendar(calendarData);
+      setSeason(seasonData);
     } catch (err) {
       console.log("CalendarScreen fetch error:", err);
       setError("Kalenterin hakeminen epäonnistui.");
@@ -105,16 +94,14 @@ const CalendarScreen: React.FC = () => {
           </DataTable.Header>
 
           {calendar.map((gp) => {
-            const formattedDate = formatDayMonthFi(gp.pvm);
+            const formattedDate = formatDateFi(gp.pvm);
             const hasWinner = gp.voittotulos != null && gp.voittaja != null;
             return (
               <DataTable.Row key={gp.gpId}>
                 <DataTable.Cell>{gp.jarjestysnumero}</DataTable.Cell>
                 <DataTable.Cell>{formattedDate}</DataTable.Cell>
                 <DataTable.Cell>{gp.keilahalli}</DataTable.Cell>
-                <DataTable.Cell>
-                  {hasWinner ? gp.voittaja : "-"}
-                </DataTable.Cell>
+                <DataTable.Cell>{hasWinner ? gp.voittaja : "-"}</DataTable.Cell>
                 <DataTable.Cell numeric>
                   {hasWinner ? gp.voittotulos : "-"}
                 </DataTable.Cell>

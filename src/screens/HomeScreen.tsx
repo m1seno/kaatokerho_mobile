@@ -3,37 +3,17 @@ import { ScrollView, View } from "react-native";
 import { Text, Card, ActivityIndicator } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { useAuthStore } from "../store/AuthStore";
-import { api } from "../services/api";
-import { getCurrentSeason } from "../services/seasonService";
-import { getCurrentStandings } from "../services/standingsService";
-import { getNextGp } from "../services/gpService";
+import {
+  getCurrentStandings,
+  StandingsRow,
+} from "../services/standingsService";
+import { getNextGp, NextGp } from "../services/gpService";
 import { formatDateFi } from "../utils/date";
-
-type StandingsRow = {
-  sija: number;
-  keilaajaId: number;
-  nimi: string;
-  gpMaara: number;
-  pisteet: number;
-  pisteetPerGp: number;
-  gpVoitot: number;
-  gpTulokset: (number | null)[];
-  yhteensa: number;
-  kaGp: number;
-  kaSarja: number;
-};
 
 type SeasonSummary = {
   sija: number;
   pisteet: number;
   kaSarja: number;
-};
-
-type NextGp = {
-  jarjestysnumero: number;
-  pvm: string;
-  onKultainenGp: boolean;
-  keilahalliNimi: string;
 };
 
 const HomeScreen: React.FC = () => {
@@ -52,38 +32,27 @@ const HomeScreen: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        // Haetaan sarjataulukko
-        const seasonRes = await api.get<StandingsRow[]>(
-          `/api/sarjataulukko/current`
-        );
-        // Poimitaan omat tiedot
-        const oma = seasonRes.data.find(
-          (row) => row.keilaajaId === user.keilaajaId
-        );
-        if (!oma) {
-          throw new Error("Käyttäjää ei löydy sarjataulukosta");
-        }
-        // Muodosta SeasonSummary
-        const seasonSummary: SeasonSummary = {
-          sija: oma.sija,
-          pisteet: oma.pisteet,
-          kaSarja: oma.kaSarja,
-        };
-        setSeasonSummary(seasonSummary);
+        // Haetaan samanaikaisesti sarjataulukko ja seuraava GP
+        const [standings, nextGp] = await Promise.all([
+          getCurrentStandings(),
+          getNextGp(),
+        ]);
 
-        // Haetaan seuraava GP
-        const gpRes = await api.get<NextGp>("/api/gp/next");
-        const next = gpRes.data;
-        if (!next) {
-          throw new Error("Seuraavaa GP:tä ei löydy");
+        // Etsi käyttäjän sijoitus sarjataulukosta
+        const userStanding = standings.find(
+          (row: StandingsRow) => row.keilaajaId === user.keilaajaId
+        );
+
+        // Päivitä käyttäjän kausiyhteenveto
+        if (userStanding) {
+          setSeasonSummary({
+            sija: userStanding.sija,
+            pisteet: userStanding.pisteet,
+            kaSarja: userStanding.kaSarja,
+          });
+        } else {
+          setSeasonSummary(null);
         }
-        // Muodosta NextGp
-        const nextGp: NextGp = {
-          jarjestysnumero: next.jarjestysnumero,
-          pvm: next.pvm,
-          onKultainenGp: next.onKultainenGp,
-          keilahalliNimi: next.keilahalliNimi,
-        };
         setNextGp(nextGp);
       } catch (e) {
         console.log("HomeScreen fetchData error:", e);
@@ -115,9 +84,18 @@ const HomeScreen: React.FC = () => {
         <Card style={{ marginBottom: 16 }}>
           <Card.Title title="Kausitilanteesi" titleVariant="titleLarge" />
           <Card.Content>
-            <Text style={{fontWeight: "bold"}}> Sijoitus: {seasonSummary.sija}</Text>
-            <Text style={{fontWeight: "bold"}}> Pisteet: {seasonSummary.pisteet}</Text>
-            <Text style={{fontWeight: "bold"}}> Sarjakeskiarvo: {seasonSummary.kaSarja.toFixed(2)}</Text>
+            <Text style={{ fontWeight: "bold" }}>
+              {" "}
+              Sijoitus: {seasonSummary.sija}
+            </Text>
+            <Text style={{ fontWeight: "bold" }}>
+              {" "}
+              Pisteet: {seasonSummary.pisteet}
+            </Text>
+            <Text style={{ fontWeight: "bold" }}>
+              {" "}
+              Sarjakeskiarvo: {seasonSummary.kaSarja.toFixed(2)}
+            </Text>
           </Card.Content>
         </Card>
       );
@@ -139,12 +117,20 @@ const HomeScreen: React.FC = () => {
 
     return (
       <Card style={{ marginBottom: 16 }}>
-        <Card.Title title="Seuraava GP" titleVariant="titleLarge"/>
+        <Card.Title title="Seuraava GP" titleVariant="titleLarge" />
         <Card.Content>
-          <Text style={{fontWeight: "bold"}}>GP: {nextGp.jarjestysnumero}</Text>
-          <Text style={{fontWeight: "bold"}}>Päivämäärä: {formatDateFi(nextGp.pvm)}</Text>
-          <Text style={{fontWeight: "bold"}}>Paikka: {nextGp.keilahalliNimi}</Text>
-          <Text style={{fontWeight: "bold"}}>Kultainen GP: {nextGp.onKultainenGp ? "✅" : "❌"}</Text>
+          <Text style={{ fontWeight: "bold" }}>
+            GP: {nextGp.jarjestysnumero}
+          </Text>
+          <Text style={{ fontWeight: "bold" }}>
+            Päivämäärä: {formatDateFi(nextGp.pvm)}
+          </Text>
+          <Text style={{ fontWeight: "bold" }}>
+            Paikka: {nextGp.keilahalliNimi}
+          </Text>
+          <Text style={{ fontWeight: "bold" }}>
+            Kultainen GP: {nextGp.onKultainenGp ? "✅" : "❌"}
+          </Text>
         </Card.Content>
       </Card>
     );

@@ -3,27 +3,14 @@ import { ScrollView, View } from "react-native";
 import { ActivityIndicator, DataTable, Text } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { appColors } from "../styles";
-import { api } from "../services/api";
-
-type StandingRow = {
-  sija: number;
-  keilaajaId: number;
-  nimi: string;
-  gpMaara: number;
-  pisteet: number;
-  kaGp: number;
-};
-
-type Season = {
-  kausiId: number;
-  nimi: String;
-  gpMaara: number;
-  suunniteltuGpMaara: number;
-  osallistujamaara: number;
-}
+import { Season, getCurrentSeason } from "../services/seasonService";
+import {
+  StandingsRow,
+  getCurrentStandings,
+} from "../services/standingsService";
 
 const StandingsScreen: React.FC = () => {
-  const [standings, setStandings] = useState<StandingRow[]>([]);
+  const [standings, setStandings] = useState<StandingsRow[]>([]);
   const [season, setSeason] = useState<Season | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,14 +19,15 @@ const StandingsScreen: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const standingsRes = await api.get<StandingRow[]>("/api/sarjataulukko/current");
-      setStandings(standingsRes.data);
-
-      const seasonRes = await api.get<Season>("/api/kausi/current");
-      setSeason(seasonRes.data);
+      const [standingsData, seasonData] = await Promise.all([
+        getCurrentStandings(),
+        getCurrentSeason(),
+      ]);
+      setStandings(standingsData);
+      setSeason(seasonData);
     } catch (err) {
       console.log("StandingsScreen fetch error:", err);
-      setError("Sarjataulukon hakeminen epäonnistui.");
+      setError("Tietojen hakeminen epäonnistui.");
     } finally {
       setLoading(false);
     }
