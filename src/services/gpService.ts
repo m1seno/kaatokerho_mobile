@@ -1,6 +1,6 @@
 import { api } from "./api";
 
-type NextGp = {
+export type NextGp = {
   gpId: number;
   jarjestysnumero: number;
   pvm: string;
@@ -14,5 +14,8 @@ type NextGp = {
 // Palauttaa kuluvan kauden seuraavan GP:n, jolle ei ole vielä syötetty yhtään tulosta.
 export const getNextGp = async (): Promise<NextGp> => {
   const res = await api.get<NextGp>("/api/gp/next");
+  if (!res.data) {
+    throw new Error("Seuraavaa GP:tä ei löydy");
+  }
   return res.data;
 }

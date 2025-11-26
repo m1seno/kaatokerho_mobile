@@ -1,6 +1,6 @@
 import { api } from "./api";
 
-type Season = {
+export type Season = {
   kausiId: number;
   nimi: String;
   gpMaara: number;
@@ -11,5 +11,8 @@ type Season = {
 // Palauttaa nykyisen kauden tiedot
 export const getCurrentSeason = async (): Promise<Season> => {
   const res = await api.get<Season>("/api/kausi/current");
+    if (!res.data) {
+    throw new Error("Kausitietoja ei löydy");
+  }
   return res.data;
 };

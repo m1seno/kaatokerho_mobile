@@ -1,6 +1,6 @@
 import { api } from "./api";
 
-type StandingsRow = {
+export type StandingsRow = {
   sija: number;
   keilaajaId: number;
   nimi: string;
@@ -17,5 +17,8 @@ type StandingsRow = {
 // Palauttaa nykyisen sarjataulukon
 export const getCurrentStandings = async (): Promise<StandingsRow[]> => {
   const res = await api.get<StandingsRow[]>("/api/sarjataulukko/current");
+  if (!res.data) {
+    throw new Error("Sarjataulukkotietoja ei löydy");
+  }
   return res.data;
 };

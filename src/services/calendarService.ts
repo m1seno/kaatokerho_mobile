@@ -1,6 +1,6 @@
 import { api } from "./api";
 
-type Calendar = {
+export type Calendar = {
   gpId: number;
   jarjestysnumero: number;
   pvm: string; // ISO date string
@@ -12,5 +12,8 @@ type Calendar = {
 // Palauttaa kuluvan kauden GP-kalenterin
 export const getCalendarForCurrentSeason = async (): Promise<Calendar[]> => {
   const res = await api.get<Calendar[]>("/api/kalenteri/current");
+  if (!res.data) {
+    throw new Error("Kalenteritietoja ei löydy");
+  }
   return res.data;
 }
