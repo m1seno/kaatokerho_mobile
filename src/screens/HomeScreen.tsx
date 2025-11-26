@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, Card, ActivityIndicator } from "react-native-paper";
 import { layout } from "../styles/layout";
-import { appColors } from "../styles";
 import { useAuthStore } from "../store/AuthStore";
 import { api } from "../services/api";
+import { getCurrentSeason } from "../services/seasonService";
+import { getCurrentStandings } from "../services/standingsService";
+import { getNextGp } from "../services/gpService";
 import { formatDateFi } from "../utils/date";
 
 type StandingsRow = {
