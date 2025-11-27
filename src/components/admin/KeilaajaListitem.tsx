@@ -9,7 +9,7 @@ type Props = {
   onDelete: (k: Keilaaja) => void;
 };
 
-const KeilaajalistItem: React.FC<Props> = ({ keilaaja, onEdit, onDelete }) => {
+const KeilaajaListItem: React.FC<Props> = ({ keilaaja, onEdit, onDelete }) => {
   return (
     <Card style={{ marginBottom: 8, borderRadius: 12 }} mode="elevated">
       <Card.Title
@@ -36,4 +36,4 @@ const KeilaajalistItem: React.FC<Props> = ({ keilaaja, onEdit, onDelete }) => {
   );
 };
 
-export default KeilaajalistItem;
+export default KeilaajaListItem;
