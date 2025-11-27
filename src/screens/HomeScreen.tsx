@@ -3,11 +3,19 @@ import { ScrollView, View } from "react-native";
 import { Text, Card, ActivityIndicator } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { useAuthStore } from "../store/AuthStore";
+import { getCurrentSeason, Season } from "../services/seasonService";
 import {
   getCurrentStandings,
   StandingsRow,
 } from "../services/standingsService";
 import { getNextGp, NextGp } from "../services/gpService";
+import {
+  getCurrentChampion,
+  getCurrentChallengerList,
+  Challenger,
+  ChallengerList,
+  CurrentChampion,
+} from "../services/kuppiksenKunkkuService";
 import { formatDateFi } from "../utils/date";
 
 type SeasonSummary = {
@@ -25,6 +33,12 @@ const HomeScreen: React.FC = () => {
   const [nextGp, setNextGp] = useState<NextGp | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [challengerList, setChallengerList] = useState<ChallengerList | null>(
+    null
+  );
+  const [currentChampion, setCurrentChampion] =
+    useState<CurrentChampion | null>(null);
+  const [currentSeason, setCurrentSeason] = useState<Season | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,11 +46,15 @@ const HomeScreen: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
+        const season = await getCurrentSeason();
         // Haetaan samanaikaisesti sarjataulukko ja seuraava GP
-        const [standings, nextGp] = await Promise.all([
-          getCurrentStandings(),
-          getNextGp(),
-        ]);
+        const [standings, nextGp, currentChampion, ChallengerList] =
+          await Promise.all([
+            getCurrentStandings(),
+            getNextGp(),
+            getCurrentChampion(String(season.nimi)),
+            getCurrentChallengerList(),
+          ]);
 
         // Etsi käyttäjän sijoitus sarjataulukosta
         const userStanding = standings.find(
@@ -54,6 +72,8 @@ const HomeScreen: React.FC = () => {
           setSeasonSummary(null);
         }
         setNextGp(nextGp);
+        setChallengerList(ChallengerList);
+        setCurrentChampion(currentChampion);
       } catch (e) {
         console.log("HomeScreen fetchData error:", e);
         setError("Tietojen hakeminen epäonnistui.");
@@ -136,6 +156,52 @@ const HomeScreen: React.FC = () => {
     );
   };
 
+  const renderKuppiksenKunkkuCard = () => {
+    if (!challengerList || !currentChampion) {
+      return (
+        <Card style={{ marginBottom: 16 }}>
+          <Card.Title title="Kuppiksen Kunkku" />
+          <Card.Content>
+            <Text>Kuppiksen kunkku -tietoja ei saatavilla.</Text>
+          </Card.Content>
+        </Card>
+      );
+    }
+
+      return (
+        <Card style={{ marginBottom: 16 }}>
+          <Card.Title title="Kuppiksen Kunkku" titleVariant="titleLarge" />
+          <Card.Content>
+            <Text style={{ fontWeight: "bold" }}>
+              Hallitseva: {currentChampion.puolustajaNimi}
+            </Text>
+            <Text style={{ fontWeight: "bold", marginTop: 8 }}>
+              Haastajat:
+            </Text>
+
+            {challengerList.haastajat.length === 0 && (
+              <Text>Ensimmäinen Gp ei sisällä haastajia.</Text>
+            )}
+
+            {challengerList.haastajat.map((haastaja: Challenger, index) => (
+              <View key={haastaja.keilaajaId} style={{flexDirection: "row", justifyContent: "space-between",alignItems: "center", marginVertical: 2}}>
+
+                <Text style={{ flex: 1 }}>
+                  {index + 1}. {haastaja.nimi}
+                </Text>
+
+                <Text style={{ textAlign: "right" }}>
+                  {haastaja.sarja1}
+                  <Text> ({haastaja.sarja2})</Text>
+                </Text>
+              </View>
+            ))}
+
+          </Card.Content>
+        </Card>
+      );
+  };
+
   return (
     <ScrollView
       style={layout.container}
@@ -168,6 +234,7 @@ const HomeScreen: React.FC = () => {
         <>
           {renderSeasonCard()}
           {renderNextGpCard()}
+          {renderKuppiksenKunkkuCard()}
         </>
       )}
     </ScrollView>
