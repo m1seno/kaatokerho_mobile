@@ -13,7 +13,6 @@ import {
   KeilaajaCreate,
   KeilaajaUpdate,
 } from "../../services/keilaajaService";
-import DialogActions from "react-native-paper/lib/typescript/components/Dialog/DialogActions";
 
 const emptyForm: KeilaajaCreate = {
   etunimi: "",
@@ -65,9 +64,10 @@ const KeilaajaFormDialog: React.FC<Props> = ({
 
   const isFormValid = (): boolean => {
     return (
-      formData.etunimi.trim().length > 0 &&
-      formData.sukunimi.trim().length > 0 &&
-      formData.kayttajanimi.trim().length > 0
+      (formData.etunimi ?? "").trim().length > 0 &&
+      (formData.sukunimi ?? "").trim().length > 0 &&
+      (formData.kayttajanimi ?? "").trim().length > 0 &&
+      formData.syntymapaiva.length > 0
     );
   };
 
@@ -146,7 +146,7 @@ const KeilaajaFormDialog: React.FC<Props> = ({
             <HelperText type="error">Kaikki kentät ovat pakollisia!</HelperText>
           )}
         </Dialog.Content>
-        <DialogActions>
+        <Dialog.Actions>
           <Button onPress={onDismiss} disabled={submitting}>
             Peruuta
           </Button>
@@ -157,7 +157,7 @@ const KeilaajaFormDialog: React.FC<Props> = ({
           >
             Tallenna
           </Button>
-        </DialogActions>
+        </Dialog.Actions>
       </Dialog>
     </Portal>
   );

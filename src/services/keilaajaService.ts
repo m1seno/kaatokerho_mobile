@@ -51,6 +51,7 @@ export const fetchKeilaajaById = async (keilaajaId: number): Promise<Keilaaja> =
 
 export const createKeilaaja = async (newKeilaaja: KeilaajaCreate): Promise<Keilaaja> => {
     try {
+        console.log("createdKeilaaja payload:", JSON.stringify(newKeilaaja, null, 2));
         const response = await api.post<Keilaaja>("/api/keilaaja", newKeilaaja);
         return response.data;
     } catch (error) {
