@@ -8,7 +8,7 @@ import HomeScreen from "../screens/HomeScreen";
 import StandingsScreen from "../screens/StandingsScreen";
 import CalendarScreen from "../screens/CalendarScreen";
 import StatsScreen from "../screens/StatsScreen";
-import AdminScreen from "../screens/AdminScreen";
+import AdminNavigator from "./AdminNavigator";
 import LogoutMenu from "../components/LogoutMenu";
 
 export type MainTabParamList = {
@@ -51,7 +51,7 @@ const TAB_ROUTES: TabRoute[] = [
   },
   {
     name: "Admin",
-    component: AdminScreen,
+    component: AdminNavigator,
     title: "Admin",
     icon: "shield-account",
     adminOnly: true,
