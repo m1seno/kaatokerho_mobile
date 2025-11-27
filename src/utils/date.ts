@@ -62,3 +62,11 @@ export const formatDateTimeFi = (isoDateTime: string): string => {
 
   return `${day}.${month}.${year} klo ${hours}.${minutes}`;
 };
+
+// Muutetaan syötteen päivämäärä yhteensopivaksi backendin kanssa
+  export const toIsoFromFi = (dateString: string): string => {
+    const parts = dateString.split(".");
+    if (parts.length !== 3) return dateString; // fallback, jos käyttäjä sekoilee
+    const [dd, mm, yyyy] = parts;
+    return `${yyyy}-${mm}-${dd}`;
+  };

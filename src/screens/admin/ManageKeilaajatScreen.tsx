@@ -15,6 +15,7 @@ import {
 
 import KeilaajaListItem from "../../components/admin/KeilaajaListitem";
 import KeilaajaFormDialog from "../../components/admin/KeilaajaFormDialog";
+import { toIsoFromFi } from "../../utils/date";
 
 const ManageKeilaajatScreen: React.FC = () => {
   const [keilaajat, setKeilaajat] = useState<Keilaaja[]>([]);
@@ -24,14 +25,6 @@ const ManageKeilaajatScreen: React.FC = () => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editingKeilaaja, setEditingKeilaaja] = useState<Keilaaja | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  // Muutetaan päivämäärä yhteensopivaksi backendin kanssa
-  const toIsoFromFi = (dateString: string): string => {
-    const parts = dateString.split(".");
-    if (parts.length !== 3) return dateString; // fallback, jos käyttäjä sekoilee
-    const [dd, mm, yyyy] = parts;
-    return `${yyyy}-${mm}-${dd}`;
-  };
 
   const loadKeilaajat = async () => {
     setLoading(true);
