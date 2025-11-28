@@ -1,6 +1,6 @@
 import { api } from "./api";
 
-export type Result = {
+export type Results = {
   tulosId: number;
   gpId: number;
   keilaajaId: number;
@@ -11,12 +11,12 @@ export type Result = {
   osallistui: boolean;
 };
 
-export const getResultsByGpId = async (gpId: number): Promise<Result[]> => {
+export const getResultsByGpId = async (gpId: number): Promise<Results[]> => {
   try {
-    const response = await api.get<Result[]>(`/api/tulokset/gp/${gpId}`);
+    const response = await api.get<Results[]>(`/api/tulokset/gp/${gpId}`);
     return response.data;
   } catch (error) {
     console.error("Failed to fetch results", error);
     throw error;
   }
-}
+};

@@ -1,6 +1,6 @@
-import { Result } from "../services/resultsService";
+import { Results } from "../services/resultsService";
 
-export type GpResultRow = {
+export type GpResultsRow = {
   tulosId: number;
   gpId: number;
   keilaajaId: number;
@@ -12,7 +12,7 @@ export type GpResultRow = {
   eroVoittajaan: number; // 0 voittajalle ja tasatuloksille
   osallistui: boolean;
 };
-export const computeGpResults = (result: Result[]): GpResultRow[] => {
+export const computeGpResults = (result: Results[]): GpResultsRow[] => {
   // Otetaan mukaan vain osallistuneet rivit
   const osallistuneet = result.filter((r) => r.osallistui);
 
@@ -38,7 +38,7 @@ export const computeGpResults = (result: Result[]): GpResultRow[] => {
   let lastTotal: number | null = null;
   let playerCount = 0;
 
-  const ranked: GpResultRow[] = [];
+  const ranked: GpResultsRow[] = [];
 
   for (let i = 0; i < sorted.length; i++) {
     const row = sorted[i];
