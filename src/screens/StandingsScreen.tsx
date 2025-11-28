@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { FlatList, ScrollView, View } from "react-native";
 import { ActivityIndicator, DataTable, Text } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { appColors } from "../styles";
@@ -8,6 +8,7 @@ import {
   StandingsRow,
   getCurrentStandings,
 } from "../services/standingsService";
+import StandingsListItem from "../components/standings/StandingsListItem";
 
 const StandingsScreen: React.FC = () => {
   const [standings, setStandings] = useState<StandingsRow[]>([]);
@@ -40,12 +41,9 @@ const StandingsScreen: React.FC = () => {
   const hasData = useMemo(() => standings.length > 0, [standings]);
 
   return (
-    <ScrollView
-      style={layout.container}
-      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-    >
+    <View style={[layout.container, { padding: 16 }]}>
       <Text variant="headlineMedium" style={{ marginBottom: 16 }}>
-        Sarjataulukko {season ? ` ${season.nimi}` : ""}
+        Sarjataulukko {season ? `${season.nimi}` : ""}
       </Text>
 
       {loading && (
@@ -65,27 +63,14 @@ const StandingsScreen: React.FC = () => {
       )}
 
       {!loading && !error && hasData && (
-        <DataTable>
-          <DataTable.Header>
-            <DataTable.Title>Sija</DataTable.Title>
-            <DataTable.Title>Nimi</DataTable.Title>
-            <DataTable.Title numeric>GP:t</DataTable.Title>
-            <DataTable.Title numeric>Pisteet</DataTable.Title>
-            <DataTable.Title numeric>KA</DataTable.Title>
-          </DataTable.Header>
-
-          {standings.map((row) => (
-            <DataTable.Row key={row.keilaajaId}>
-              <DataTable.Cell>{row.sija}</DataTable.Cell>
-              <DataTable.Cell>{row.nimi}</DataTable.Cell>
-              <DataTable.Cell numeric>{row.gpMaara}</DataTable.Cell>
-              <DataTable.Cell numeric>{row.pisteet}</DataTable.Cell>
-              <DataTable.Cell numeric>{row.kaGp.toFixed(2)}</DataTable.Cell>
-            </DataTable.Row>
-          ))}
-        </DataTable>
+        <FlatList
+          data={standings}
+          keyExtractor={(item) => item.keilaajaId.toString()}
+          renderItem={({ item }) => <StandingsListItem row={item} />}
+          contentContainerStyle={{ paddingBottom: 24 }}
+        />
       )}
-    </ScrollView>
+    </View>
   );
 };
 

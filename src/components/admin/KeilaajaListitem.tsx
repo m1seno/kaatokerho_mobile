@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutAnimation, View } from "react-native";
+import { LayoutAnimation, Platform, UIManager, View } from "react-native";
 import { Card, IconButton, TouchableRipple, Text } from "react-native-paper";
 import { Keilaaja } from "../../services/keilaajaService";
 
@@ -8,6 +8,13 @@ type Props = {
   onEdit: (k: Keilaaja) => void;
   onDelete: (k: Keilaaja) => void;
 };
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const KeilaajaListItem: React.FC<Props> = ({ keilaaja, onEdit, onDelete }) => {
 
