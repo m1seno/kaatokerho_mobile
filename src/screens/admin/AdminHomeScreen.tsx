@@ -10,9 +10,6 @@ type Props = NativeStackScreenProps<AdminStackParamList, "AdminHome">;
 const AdminHomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={[layout.container, { padding: 24 }]}>
-      <Text variant="headlineMedium" style={{ marginBottom: 24 }}>
-        Admin-hallinta
-      </Text>
 
       <Button
         mode="contained"

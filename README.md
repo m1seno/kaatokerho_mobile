@@ -13,11 +13,11 @@ src/
     auth/
       ✅ LoginScreen.tsx        # Login + optio biometriseen
     home/
-      HomeScreen.tsx         # Etusivu: tilanne + seuraava GP
+      ✅ HomeScreen.tsx         # Etusivu: tilanne + seuraava GP
     standings/
-      StandingsScreen.tsx    # Sarjataulukko
+      ✅ StandingsScreen.tsx    # Sarjataulukko
     schedule/
-      ScheduleScreen.tsx     # Kilpailukalenteri (GP-lista)
+      ✅ ScheduleScreen.tsx     # Kilpailukalenteri (GP-lista)
       GpDetailScreen.tsx     # Yksittäisen GP:n tiedot + tulokset
     stats/
       StatsScreen.tsx        # Tilastot + graafit

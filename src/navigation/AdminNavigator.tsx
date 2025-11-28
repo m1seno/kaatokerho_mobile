@@ -20,7 +20,7 @@ const AdminNavigator: React.FC = () => {
       <Stack.Screen
         name="AdminHome"
         component={AdminHomeScreen}
-        options={{ title: "Admin" }}
+        options={{ title: "Admin-hallinta" }}
       />
       <Stack.Screen
         name="ManageKeilaajat"
