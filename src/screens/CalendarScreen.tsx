@@ -1,17 +1,21 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, View } from "react-native";
-import { ActivityIndicator, DataTable, Text } from "react-native-paper";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { FlatList, View } from "react-native";
+import { ActivityIndicator, Text } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { layout } from "../styles/layout";
 import { appColors } from "../styles";
-import { api } from "../services/api";
 import { Season, getCurrentSeason } from "../services/seasonService";
 import {
   Calendar,
   getCalendarForCurrentSeason,
 } from "../services/calendarService";
-import { formatDateFi } from "../utils/date";
+import { CalendarStackParamList } from "../navigation/CalendarNavigator";
+import GpListItem from "../components/schedule/GpListItem";
 
 const CalendarScreen: React.FC = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<CalendarStackParamList>>();
   const [calendar, setCalendar] = useState<Calendar[]>([]);
   const [season, setSeason] = useState<Season | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -39,7 +43,6 @@ const CalendarScreen: React.FC = () => {
     fetchCalendar();
   }, []);
 
-  // Lasketaan voittotulosten keskiarvo vain niistä GP:istä, joille on määritelty voittotulos
   const averageWinnerScore = useMemo(() => {
     const scores = calendar
       .filter((event) => event.voittotulos !== null)
@@ -49,68 +52,59 @@ const CalendarScreen: React.FC = () => {
     return Math.round(total / scores.length);
   }, [calendar]);
 
-  const hasData = calendar.length > 0;
+  const renderItem = useCallback(
+    ({ item }: { item: Calendar }) => (
+      <GpListItem
+        gp={item}
+        onPress={() =>
+          navigation.navigate("GpResults", {
+            gpId: item.gpId,
+            title: `GP #${item.jarjestysnumero}`,
+          })
+        }
+      />
+    ),
+    [navigation]
+  );
 
   return (
-    <ScrollView
-      style={layout.container}
+    <FlatList
+      data={calendar}
+      keyExtractor={(item) => item.gpId.toString()}
       contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-    >
-      <Text variant="headlineMedium" style={{ marginBottom: 8 }}>
-        GP-kalenteri {season ? ` ${season.nimi}` : ""}
-      </Text>
-
-      {/* Yhteenveto voittotuloksista */}
-      {averageWinnerScore !== null && (
-        <Text variant="bodyMedium" style={{ marginBottom: 16 }}>
-          Voittotulosten keskiarvo: {averageWinnerScore}
-        </Text>
-      )}
-
-      {loading && (
-        <View style={[layout.center, { marginVertical: 32 }]}>
-          <ActivityIndicator animating size="large" color={appColors.primary} />
+      style={layout.container}
+      ListHeaderComponent={
+        <View style={{ marginBottom: 12 }}>
+          <Text variant="headlineMedium" style={{ marginBottom: 8 }}>
+            GP-kalenteri {season ? ` ${season.nimi}` : ""}
+          </Text>
+          {averageWinnerScore !== null && (
+            <Text variant="bodyMedium" style={{ marginBottom: 8 }}>
+              Voittotulosten keskiarvo: {averageWinnerScore}
+            </Text>
+          )}
+          {loading && (
+            <View style={[layout.center, { marginVertical: 24 }]}>
+              <ActivityIndicator
+                animating
+                size="large"
+                color={appColors.primary}
+              />
+            </View>
+          )}
+          {!loading && error && (
+            <Text style={{ color: "red", marginBottom: 12 }}>{error}</Text>
+          )}
+          {!loading && !error && calendar.length === 0 && (
+            <Text style={{ marginBottom: 12 }}>
+              Kalenteritietoja ei ole saatavilla.
+            </Text>
+          )}
         </View>
-      )}
-
-      {!loading && error && (
-        <Text style={{ color: "red", marginBottom: 16 }}>{error}</Text>
-      )}
-
-      {!loading && !error && !hasData && (
-        <Text style={{ marginBottom: 16 }}>
-          Kalenteritietoja ei ole saatavilla.
-        </Text>
-      )}
-
-      {!loading && !error && hasData && (
-        <DataTable>
-          <DataTable.Header>
-            <DataTable.Title>GP #</DataTable.Title>
-            <DataTable.Title>Pvm</DataTable.Title>
-            <DataTable.Title>Keilahalli</DataTable.Title>
-            <DataTable.Title>Voittaja</DataTable.Title>
-            <DataTable.Title numeric>Voittotulos</DataTable.Title>
-          </DataTable.Header>
-
-          {calendar.map((gp) => {
-            const formattedDate = formatDateFi(gp.pvm);
-            const hasWinner = gp.voittotulos != null && gp.voittaja != null;
-            return (
-              <DataTable.Row key={gp.gpId}>
-                <DataTable.Cell>{gp.jarjestysnumero}</DataTable.Cell>
-                <DataTable.Cell>{formattedDate}</DataTable.Cell>
-                <DataTable.Cell>{gp.keilahalli}</DataTable.Cell>
-                <DataTable.Cell>{hasWinner ? gp.voittaja : "-"}</DataTable.Cell>
-                <DataTable.Cell numeric>
-                  {hasWinner ? gp.voittotulos : "-"}
-                </DataTable.Cell>
-              </DataTable.Row>
-            );
-          })}
-        </DataTable>
-      )}
-    </ScrollView>
+      }
+      renderItem={renderItem}
+      ListEmptyComponent={null}
+    />
   );
 };
 

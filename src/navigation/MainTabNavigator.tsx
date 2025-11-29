@@ -6,10 +6,10 @@ import { appColors } from "../styles";
 
 import HomeScreen from "../screens/HomeScreen";
 import StandingsScreen from "../screens/StandingsScreen";
-import CalendarScreen from "../screens/CalendarScreen";
 import StatsScreen from "../screens/StatsScreen";
 import AdminNavigator from "./AdminNavigator";
 import LogoutMenu from "../components/LogoutMenu";
+import CalendarNavigator from "./CalendarNavigator";
 
 export type MainTabParamList = {
   Home: undefined;
@@ -39,7 +39,7 @@ const TAB_ROUTES: TabRoute[] = [
   },
   {
     name: "Calendar",
-    component: CalendarScreen,
+    component: CalendarNavigator,
     title: "Kalenteri",
     icon: "calendar",
   },
