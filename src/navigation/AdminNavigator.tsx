@@ -4,12 +4,14 @@ import AdminHomeScreen from "../screens/admin/AdminHomeScreen";
 import ManageKeilaajatScreen from "../screens/admin/ManageKeilaajatScreen";
 import ManageKeilahallitScreen from "../screens/admin/ManageKeilahalliScreen";
 import ManageKausiScreen from "../screens/admin/ManageKausiScreen";
+import ManageSeasonGpsScreen from "../screens/admin/ManageSeasonGpsScreen";
 
 export type AdminStackParamList = {
   AdminHome: undefined;
   ManageKeilaajat: undefined;
   ManageKeilahallit: undefined;
   ManageKausi: undefined;
+  ManageSeasonGps: {kausiId: number; kausiNimi: string}
 };
 
 const Stack = createNativeStackNavigator<AdminStackParamList>();
@@ -36,6 +38,11 @@ const AdminNavigator: React.FC = () => {
         name="ManageKausi"
         component={ManageKausiScreen}
         options={{ title: "Kausi" }}
+      />
+      <Stack.Screen
+      name="ManageSeasonGps"
+      component={ManageSeasonGpsScreen}
+      options={{title: "GP-hallinta"}}
       />
     </Stack.Navigator>
   );

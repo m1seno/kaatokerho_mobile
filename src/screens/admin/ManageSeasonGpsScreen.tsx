@@ -1,10 +1,9 @@
 // src/screens/admin/ManageSeasonGpsScreen.tsx
 import React, { useEffect, useState } from "react";
-import { View, FlatList, Alert, ScrollView } from "react-native";
+import { View, FlatList, Alert } from "react-native";
 import { ActivityIndicator, Button, Text } from "react-native-paper";
 import { layout } from "../../styles/layout";
 
-import { Season } from "../../services/seasonService";
 import {
   Gp,
   getGpsBySeason,
@@ -12,24 +11,20 @@ import {
   updateGp,
   deleteGp,
   CreateGpPayload,
-  UpdateGpPayload,
 } from "../../services/gpService";
 
 import GpAdminListItem from "../../components/admin/GpAdminListItem";
 import GpFormDialog, {
   GpFormValues,
 } from "../../components/admin/GpFormDialog";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { AdminStackParamList } from "../../navigation/AdminNavigator";
 
-type Props = {
-  route: {
-    params: {
-      season: Season;
-    };
-  };
-};
+type RouteParams = RouteProp<AdminStackParamList, "ManageSeasonGps">;
 
-const ManageSeasonGpsScreen: React.FC<Props> = ({ route }) => {
-  const { season } = route.params;
+const ManageSeasonGpsScreen: React.FC = () => {
+  const route = useRoute<RouteParams>();
+  const { kausiId, kausiNimi } = route.params;
 
   const [gps, setGps] = useState<Gp[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,7 +38,7 @@ const ManageSeasonGpsScreen: React.FC<Props> = ({ route }) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getGpsBySeason(season.kausiId);
+      const data = await getGpsBySeason(kausiId);
       setGps(data);
     } catch (e) {
       console.log("getGpsBySeason error:", e);
@@ -55,7 +50,7 @@ const ManageSeasonGpsScreen: React.FC<Props> = ({ route }) => {
 
   useEffect(() => {
     loadGps();
-  }, [season.kausiId]);
+  }, [kausiId]);
 
   const openAddDialog = () => {
     setEditingGp(null);
@@ -111,7 +106,7 @@ const ManageSeasonGpsScreen: React.FC<Props> = ({ route }) => {
           pvm: data.pvm,
           keilahalliId: data.keilahalliId,
           kultainenGp: data.onKultainenGp,
-          kausiId: season.kausiId,
+          kausiId: kausiId,
         };
 
         const created = await createGp(payload);
@@ -148,50 +143,53 @@ const ManageSeasonGpsScreen: React.FC<Props> = ({ route }) => {
   };
 
   return (
-    <ScrollView style={[layout.container, { padding: 16 }]}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
-        <Text variant="headlineMedium">GP:t - {season.nimi}</Text>
-        <Button mode="contained" onPress={openAddDialog}>
-          Lisää GP
-        </Button>
-      </View>
+    <View style={[layout.container, { flex: 1, padding: 16 }]}>
+      <FlatList
+        data={gps}
+        keyExtractor={(item) => item.gpId.toString()}
+        renderItem={({ item }) => (
+          <GpAdminListItem
+            gp={item}
+            onEdit={openEditDialog}
+            onDelete={handleDelete}
+            onEnterResults={handleEnterResults}
+            onDeleteResults={handleDeleteResults}
+          />
+        )}
+        contentContainerStyle={{ paddingBottom: 24 }}
+        ListHeaderComponent={
+          <View style={{ marginBottom: 16 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 16,
+              }}
+            >
+              <Text variant="headlineMedium">GP:t - {kausiNimi}</Text>
+              <Button mode="contained" onPress={openAddDialog}>
+                Lisää GP
+              </Button>
+            </View>
 
-      {loading && (
-        <View style={[layout.center, { marginTop: 32 }]}>
-          <ActivityIndicator animating size="large" />
-        </View>
-      )}
+            {loading && (
+              <View style={[layout.center, { marginTop: 16 }]}>
+                <ActivityIndicator animating size="large" />
+              </View>
+            )}
 
-      {!loading && error && (
-        <Text style={{ color: "red", marginBottom: 16 }}>{error}</Text>
-      )}
-
-      {!loading && !error && (
-        <FlatList
-          data={gps}
-          keyExtractor={(item) => item.gpId.toString()}
-          renderItem={({ item }) => (
-            <GpAdminListItem
-              gp={item}
-              onEdit={openEditDialog}
-              onDelete={handleDelete}
-              onEnterResults={handleEnterResults}
-              onDeleteResults={handleDeleteResults}
-            />
-          )}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          ListEmptyComponent={
+            {!loading && error && (
+              <Text style={{ color: "red", marginBottom: 16 }}>{error}</Text>
+            )}
+          </View>
+        }
+        ListEmptyComponent={
+          !loading && !error ? (
             <Text>Ei GP:tä kaudella. Lisää ensimmäinen GP.</Text>
-          }
-        />
-      )}
+          ) : null
+        }
+      />
 
       <GpFormDialog
         visible={dialogVisible}
@@ -200,7 +198,7 @@ const ManageSeasonGpsScreen: React.FC<Props> = ({ route }) => {
         onSubmit={handleSubmitForm}
         submitting={submitting}
       />
-    </ScrollView>
+    </View>
   );
 };
 

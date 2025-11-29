@@ -3,7 +3,6 @@ import {
   Alert,
   FlatList,
   Keyboard,
-  ScrollView,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -20,8 +19,13 @@ import {
 } from "../../services/seasonService";
 import { useNavigation } from "@react-navigation/native";
 import SeasonFormDialog from "../../components/admin/SeasonFormDialog";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { AdminStackParamList } from "../../navigation/AdminNavigator";
 
 const ManageKausiScreen: React.FC = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AdminStackParamList>>();
+    
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +33,6 @@ const ManageKausiScreen: React.FC = () => {
   const [dialogVisible, setDialogVisible] = useState<boolean>(false);
   const [editingSeason, setEditingSeason] = useState<Season | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
-
-  const navigation = useNavigation<any>();
 
   const loadSeasons = async () => {
     setLoading(true);
@@ -92,8 +94,8 @@ const ManageKausiScreen: React.FC = () => {
 
   const handleOpenGpList = (season: Season) => {
     navigation.navigate("ManageSeasonGps", {
-      seasonId: season.kausiId,
-      seasonName: season.nimi,
+      kausiId: season.kausiId,
+      kausiNimi: String(season.nimi),
     });
   };
 
@@ -123,52 +125,53 @@ const ManageKausiScreen: React.FC = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <ScrollView style={[layout.container, { padding: 16 }]}>
-        {/* Otsikko + Lisää-painike */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 16,
-          }}
-        >
-          <Text variant="headlineMedium">Kausien hallinta</Text>
-          <Button mode="contained" onPress={openAddDialog}>
-            Lisää kausi
-          </Button>
-        </View>
+      <View style={[layout.container, { flex: 1, padding: 16 }]}>
+        <FlatList
+          keyboardShouldPersistTaps="handled"
+          data={seasons}
+          keyExtractor={(item) => item.kausiId.toString()}
+          renderItem={({ item }) => (
+            <SeasonListItem
+              season={item}
+              onEdit={openEditDialog}
+              onDelete={handleDelete}
+              onOpenGpList={handleOpenGpList}
+            />
+          )}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          ListHeaderComponent={
+            <View style={{ marginBottom: 16 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 16,
+                }}
+              >
+                <Text variant="headlineMedium">Kausien hallinta</Text>
+                <Button mode="contained" onPress={openAddDialog}>
+                  Lisää kausi
+                </Button>
+              </View>
 
-        {/* Lataus / virhe / lista */}
-        {loading && (
-          <View style={[layout.container, { marginBottom: 32 }]}>
-            <ActivityIndicator animating size="large" />
-          </View>
-        )}
+              {loading && (
+                <View style={[layout.center, { marginBottom: 16 }]}>
+                  <ActivityIndicator animating size="large" />
+                </View>
+              )}
 
-        {!loading && error && (
-          <Text style={{ color: "red", marginBottom: 16 }}>{error}</Text>
-        )}
-
-        {!loading && !error && (
-          <FlatList
-            keyboardShouldPersistTaps="handled"
-            data={seasons}
-            keyExtractor={(item) => item.kausiId.toString()}
-            renderItem={({ item }) => (
-              <SeasonListItem
-                season={item}
-                onEdit={openEditDialog}
-                onDelete={handleDelete}
-                onOpenGpList={handleOpenGpList}
-              />
-            )}
-            contentContainerStyle={{ paddingBottom: 24 }}
-            ListEmptyComponent={
+              {!loading && error && (
+                <Text style={{ color: "red", marginBottom: 16 }}>{error}</Text>
+              )}
+            </View>
+          }
+          ListEmptyComponent={
+            !loading && !error ? (
               <Text>Ei kausia. Lisää ensimmäinen kausi.</Text>
-            }
-          />
-        )}
+            ) : null
+          }
+        />
 
         {/* Lisää / muokkaa -dialogi */}
         <SeasonFormDialog
@@ -178,7 +181,7 @@ const ManageKausiScreen: React.FC = () => {
           onSubmit={handleSubmitForm}
           submitting={submitting}
         />
-      </ScrollView>
+      </View>
     </TouchableWithoutFeedback>
   );
 };
