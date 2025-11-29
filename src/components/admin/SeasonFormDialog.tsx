@@ -67,50 +67,60 @@ const SeasonFormDialog: React.FC<Props> = ({
 
   return (
     <Portal>
-      <Dialog visible={visible} onDismiss={onDismiss}>
-        <Dialog.Title>
-          {editingSeason ? "Muokkaa kauden tietoja" : "Lisää uusi kausi"}
-        </Dialog.Title>
-        <Dialog.Content>
-          <TextInput
-            style={{ marginBottom: 8 }}
-            label="Kauden nimi"
-            placeholder="Esim. Kausi 2024-2025"
-            value={formData.nimi}
-            onChangeText={(text) => setFormData({ ...formData, nimi: text })}
-          />
-          <TextInput
-            style={{ marginBottom: 8 }}
-            label="Suunniteltu GP-määrä"
-            value={formData.suunniteltuGpMaara?.toString() ?? ""}
-            onChangeText={(text) => setFormData({ ...formData, suunniteltuGpMaara: Number(text) || 0 })}
-            keyboardType="numeric"
-          />
-          <TextInput
-            style={{ marginBottom: 8 }}
-            label="Osallistujamäärä"
-            value={formData.osallistujamaara?.toString() ?? ""}
-            onChangeText={(text) => setFormData({ ...formData, osallistujamaara: Number(text) || 0 })}
-            keyboardType="numeric"
-          />
+        <Dialog visible={visible} onDismiss={onDismiss}>
+          <Dialog.Title>
+            {editingSeason ? "Muokkaa kauden tietoja" : "Lisää uusi kausi"}
+          </Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              style={{ marginBottom: 8 }}
+              label="Kauden nimi"
+              placeholder="Esim. 2024-2025"
+              value={formData.nimi}
+              onChangeText={(text) => setFormData({ ...formData, nimi: text })}
+            />
+            <TextInput
+              style={{ marginBottom: 8 }}
+              label="Suunniteltu GP-määrä"
+              value={formData.suunniteltuGpMaara?.toString() ?? ""}
+              onChangeText={(text) =>
+                setFormData({
+                  ...formData,
+                  suunniteltuGpMaara: Number(text),
+                })
+              }
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={{ marginBottom: 8 }}
+              label="Osallistujamäärä"
+              value={formData.osallistujamaara?.toString() ?? ""}
+              onChangeText={(text) =>
+                setFormData({
+                  ...formData,
+                  osallistujamaara: Number(text),
+                })
+              }
+              keyboardType="numeric"
+            />
 
-          {!isFormValid() && (
-            <HelperText type="error">Kaikki kentät on täytettävä</HelperText>
-          )}
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button onPress={onDismiss} disabled={submitting}>
-            Peruuta
-          </Button>
-          <Button
-            onPress={handleSubmit}
-            loading={submitting}
-            disabled={submitting || !isFormValid()}
-          >
-            Tallenna
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
+            {!isFormValid() && (
+              <HelperText type="error">Kaikki kentät on täytettävä</HelperText>
+            )}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={onDismiss} disabled={submitting}>
+              Peruuta
+            </Button>
+            <Button
+              onPress={handleSubmit}
+              loading={submitting}
+              disabled={submitting || !isFormValid()}
+            >
+              Tallenna
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
     </Portal>
   );
 };
