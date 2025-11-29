@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { LayoutAnimation, Platform, UIManager, View } from "react-native";
 import { Card, IconButton, TouchableRipple, Text } from "react-native-paper";
 import { Keilaaja } from "../../services/keilaajaService";
+import { appColors } from "../../styles";
 
 type Props = {
   keilaaja: Keilaaja;
@@ -17,13 +18,12 @@ if (
 }
 
 const KeilaajaListItem: React.FC<Props> = ({ keilaaja, onEdit, onDelete }) => {
-
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpanded(!expanded);
-  }
+  };
 
   return (
     <Card style={{ marginBottom: 8, borderRadius: 12 }} mode="elevated">
@@ -32,9 +32,7 @@ const KeilaajaListItem: React.FC<Props> = ({ keilaaja, onEdit, onDelete }) => {
           <Card.Title
             title={`${keilaaja.etunimi} ${keilaaja.sukunimi}`}
             subtitle={
-              expanded
-                ? undefined
-                : null // suppea versio
+              expanded ? undefined : null // suppea versio
             }
             right={() => (
               <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -42,16 +40,19 @@ const KeilaajaListItem: React.FC<Props> = ({ keilaaja, onEdit, onDelete }) => {
                   icon="pencil"
                   size={20}
                   onPress={() => onEdit(keilaaja)}
+                  iconColor={appColors.primary}
                 />
                 <IconButton
                   icon="delete"
                   size={20}
                   onPress={() => onDelete(keilaaja)}
+                  iconColor={appColors.error}
                 />
                 <IconButton
                   icon={expanded ? "chevron-up" : "chevron-down"}
                   size={22}
                   onPress={toggleExpand}
+                  iconColor={appColors.text}
                 />
               </View>
             )}

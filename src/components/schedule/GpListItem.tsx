@@ -15,8 +15,11 @@ const GpListItem: React.FC<Props> = ({ gp, onPress }) => {
   const hasWinner = gp.voittaja && gp.voittotulos;
 
   return (
-    <Card mode="contained" style={styles.card} onPress={onPress}>
-      <Card.Title title={`GP #${gp.jarjestysnumero}`} subtitle={formattedDate} />
+    <Card mode="elevated" style={styles.card} onPress={onPress}>
+      <Card.Title
+        title={`GP #${gp.jarjestysnumero}`}
+        subtitle={formattedDate}
+      />
       <Card.Content>
         <Text variant="bodyMedium">{gp.keilahalli}</Text>
         <View style={styles.metaRow}>
