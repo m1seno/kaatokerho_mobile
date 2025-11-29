@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { Card, IconButton, Text, TouchableRipple } from "react-native-paper";
+import { Card, IconButton, Text, } from "react-native-paper";
 import { Season } from "../../services/seasonService";
 import { appColors } from "../../styles";
 
