@@ -22,7 +22,7 @@ export type Gp = {
   onKultainenGp: boolean;
 };
 
-export type CreateGp = {
+export type CreateGpPayload = {
   jarjestysnumero: number;
   pvm: string;
   keilahalliId: number;
@@ -31,7 +31,7 @@ export type CreateGp = {
 };
 
 // Patch-metodi, joten sisältö optionaleja
-export type UpdateGp = {
+export type UpdateGpPayload = {
   pvm?: string;
   keilahalliId?: number;
   onKultainenGp?: boolean;
@@ -56,7 +56,7 @@ export const getGpsBySeason = async (kausiId: number): Promise<Gp[]> => {
   }
 };
 
-export const createGp = async (payload: CreateGp): Promise<Gp> => {
+export const createGp = async (payload: CreateGpPayload): Promise<Gp> => {
   try {
     const res = await api.post<Gp>("/api/gp", payload);
     return res.data;
@@ -68,7 +68,7 @@ export const createGp = async (payload: CreateGp): Promise<Gp> => {
 
 export const updateGp = async (
   gpId: number,
-  payload: UpdateGp
+  payload: UpdateGpPayload
 ): Promise<Gp> => {
   try {
     const res = await api.patch<Gp>(`/api/gp/${gpId}`, payload);

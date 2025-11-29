@@ -68,7 +68,7 @@ const ManageKausiScreen: React.FC = () => {
   const handleDelete = (season: Season) => {
     Alert.alert(
       "Poista kausi",
-      `Jaluatko varmasi poistaa kauden ${season.nimi}?`,
+      `Haluatko varmasi poistaa kauden ${season.nimi}?`,
       [
         { text: "Peruuta", style: "cancel" },
         {
@@ -76,7 +76,7 @@ const ManageKausiScreen: React.FC = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              deleteSeason(season.kausiId);
+              await deleteSeason(season.kausiId);
               setSeasons((prev) =>
                 prev.filter((s) => s.kausiId !== season.kausiId)
               );
@@ -123,7 +123,7 @@ const ManageKausiScreen: React.FC = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={[layout.container, { padding: 16 }]}>
+      <ScrollView style={[layout.container, { padding: 16 }]}>
         {/* Otsikko + Lisää-painike */}
         <View
           style={{
@@ -178,7 +178,7 @@ const ManageKausiScreen: React.FC = () => {
           onSubmit={handleSubmitForm}
           submitting={submitting}
         />
-      </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 };

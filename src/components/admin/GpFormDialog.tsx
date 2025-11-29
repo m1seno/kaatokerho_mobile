@@ -10,7 +10,7 @@ import {
   HelperText,
 } from "react-native-paper";
 import { Gp } from "../../services/gpService";
-import { formatDateFi } from "../../utils/date";
+import { formatDateFi, toIsoFromFi } from "../../utils/date";
 
 export type GpFormValues = {
   jarjestysnumero: number | null;
@@ -47,7 +47,7 @@ const GpFormDialog: React.FC<Props> = ({
     if (editingGp) {
       setFormData({
         jarjestysnumero: Number(editingGp.jarjestysnumero),
-        pvm: String(formatDateFi(editingGp.pvm)),
+        pvm: formatDateFi(editingGp.pvm),
         keilahalliId: Number(editingGp.keilahalli.keilahalliId),
         onKultainenGp: Boolean(editingGp.onKultainenGp),
       });
@@ -60,7 +60,7 @@ const GpFormDialog: React.FC<Props> = ({
     return (
       formData.jarjestysnumero > 0 &&
       formData.keilahalliId > 0 &&
-      formData.pvm !== null &&
+      formData.pvm.length > 0 &&
       formData.onKultainenGp !== null
     );
   };
@@ -70,7 +70,7 @@ const GpFormDialog: React.FC<Props> = ({
 
     const payload: GpFormValues = {
   jarjestysnumero: formData.jarjestysnumero,
-  pvm: formatDateFi(formData.pvm),
+  pvm: toIsoFromFi(formData.pvm),
   keilahalliId: formData.keilahalliId,
   onKultainenGp: formData.onKultainenGp,
 };
@@ -78,7 +78,7 @@ const GpFormDialog: React.FC<Props> = ({
     onSubmit(payload, editingGp !== null);
   };
 
-  const showJarjestysnumeroAsReadOnly = !!editingGp;
+  const showJarjestysnumeroAsReadOnly = editingGp !== null;
 
   return (
     <Portal>
@@ -107,7 +107,7 @@ const GpFormDialog: React.FC<Props> = ({
             label="Keilahalli ID"
             value={formData.keilahalliId?.toString() ?? ""}
             onChangeText={(text) =>
-              setFormData({ ...formData, jarjestysnumero: Number(text) })
+              setFormData({ ...formData, keilahalliId: Number(text) })
             }
             style={{ marginBottom: 8 }}
             keyboardType="number-pad"
