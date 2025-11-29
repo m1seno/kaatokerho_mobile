@@ -1,4 +1,6 @@
 import { api } from "./api";
+import { Keilahalli } from "./keilahalliService";
+import { Season } from "./seasonService";
 
 export type NextGp = {
   gpId: number;
@@ -11,6 +13,30 @@ export type NextGp = {
   onKultainenGp: boolean;
 };
 
+export type Gp = {
+  gpId: number;
+  kausi: Season;
+  keilahalli: Keilahalli;
+  pvm: string;
+  jarjestysnumero: number;
+  onKultainenGp: boolean;
+};
+
+export type CreateGp = {
+  jarjestysnumero: number;
+  pvm: string;
+  keilahalliId: number;
+  kultainenGp: boolean;
+  kausiId: number;
+};
+
+// Patch-metodi, joten sisältö optionaleja
+export type UpdateGp = {
+  pvm?: string;
+  keilahalliId?: number;
+  onKultainenGp?: boolean;
+};
+
 // Palauttaa kuluvan kauden seuraavan GP:n, jolle ei ole vielä syötetty yhtään tulosta.
 export const getNextGp = async (): Promise<NextGp> => {
   const res = await api.get<NextGp>("/api/gp/next");
@@ -19,3 +45,45 @@ export const getNextGp = async (): Promise<NextGp> => {
   }
   return res.data;
 }
+
+export const getGpsBySeason = async (kausiId: number): Promise<Gp[]> => {
+  try {
+    const res = await api.get<Gp[]>(`/api/gp/kausi/${kausiId}`);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch GPs by season:", error);
+    throw error;
+  }
+};
+
+export const createGp = async (payload: CreateGp): Promise<Gp> => {
+  try {
+    const res = await api.post<Gp>("/api/gp", payload);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to create GP:", error);
+    throw error;
+  }
+};
+
+export const updateGp = async (
+  gpId: number,
+  payload: UpdateGp
+): Promise<Gp> => {
+  try {
+    const res = await api.patch<Gp>(`/api/gp/${gpId}`, payload);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to update GP:", error);
+    throw error;
+  }
+};
+
+export const deleteGp = async (gpId: number): Promise<void> => {
+  try {
+    await api.delete<void>(`/api/gp/${gpId}`);
+  } catch (error) {
+    console.error("Failed to delete GP:", error);
+    throw error;
+  }
+};
