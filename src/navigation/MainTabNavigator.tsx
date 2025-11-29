@@ -71,7 +71,7 @@ const MainTabNavigator: React.FC = () => {
         headerShown: true,
         headerRight: () => <LogoutMenu />,
         tabBarActiveTintColor: appColors.primary,
-        tabBarInactiveTintColor: "#9CA3AF",
+        tabBarInactiveTintColor: "gray",
         tabBarLabelStyle: { fontSize: 12 },
         tabBarIcon: ({ color, size }) => {
           const iconName =

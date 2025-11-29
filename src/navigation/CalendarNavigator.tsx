@@ -11,7 +11,7 @@ export type CalendarStackParamList = {
 const Stack = createNativeStackNavigator<CalendarStackParamList>();
 
 const CalendarNavigator: React.FC = () => (
-  <Stack.Navigator id={undefined}>
+  <Stack.Navigator id={undefined} initialRouteName="Calendar">
     <Stack.Screen
       name="Calendar"
       component={CalendarScreen}
