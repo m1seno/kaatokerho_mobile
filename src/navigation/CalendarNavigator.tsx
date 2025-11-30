@@ -4,16 +4,16 @@ import CalendarScreen from "../screens/CalendarScreen";
 import GpResultsScreen from "../screens/GpResultsScreen";
 
 export type CalendarStackParamList = {
-  Calendar: undefined;
+  CalendarHome: undefined;
   GpResults: { gpId: number; title: string };
 };
 
 const Stack = createNativeStackNavigator<CalendarStackParamList>();
 
 const CalendarNavigator: React.FC = () => (
-  <Stack.Navigator id={undefined} initialRouteName="Calendar">
+  <Stack.Navigator id={undefined} initialRouteName="CalendarHome">
     <Stack.Screen
-      name="Calendar"
+      name="CalendarHome"
       component={CalendarScreen}
       options={{ title: "GP-kalenteri" }}
     />

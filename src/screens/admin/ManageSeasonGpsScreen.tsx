@@ -31,6 +31,10 @@ import { Keilaaja, fetchAllKeilaajat } from "../../services/keilaajaService";
 
 import ResultsFormDialog from "../../components/admin/ResultsFormDialog";
 import { deleteResultsForGp } from "../../services/resultsService";
+import {
+  getAllKeilahallit,
+  Keilahalli,
+} from "../../services/keilahalliService";
 
 type RouteParams = RouteProp<AdminStackParamList, "ManageSeasonGps">;
 
@@ -40,9 +44,14 @@ const ManageSeasonGpsScreen: React.FC = () => {
 
   // Refresh-storejen setterit
   const setHomeNeedsRefresh = HomeRefreshStore((s) => s.setNeedsRefresh);
-  const setStandingsNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
-  const setCalendarNeedsRefresh = CalendarRefreshStore((s) => s.setNeedsRefresh);
+  const setStandingsNeedsRefresh = StandingsRefreshStore(
+    (s) => s.setNeedsRefresh
+  );
+  const setCalendarNeedsRefresh = CalendarRefreshStore(
+    (s) => s.setNeedsRefresh
+  );
 
+  const [keilahallit, setKeilahallit] = useState<Keilahalli[]>([]);
   const [gps, setGps] = useState<Gp[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +63,9 @@ const ManageSeasonGpsScreen: React.FC = () => {
 
   // Tulosten syöttö/poisto
   const [resultsDialogVisible, setResultsDialogVisible] = useState(false);
-  const [selectedGpForResults, setSelectedGpForResults] = useState<Gp | null>(null);
+  const [selectedGpForResults, setSelectedGpForResults] = useState<Gp | null>(
+    null
+  );
   const [allKeilaajat, setAllKeilaajat] = useState<Keilaaja[]>([]);
   const [submittingResults, setSubmittingResults] = useState(false);
 
@@ -76,6 +87,18 @@ const ManageSeasonGpsScreen: React.FC = () => {
   useEffect(() => {
     loadGps();
   }, [kausiId]);
+
+  useEffect(() => {
+    const fetchHalls = async () => {
+      try {
+        const data = await getAllKeilahallit(); // endpoint: GET /api/keilahalli
+        setKeilahallit(data);
+      } catch (e) {
+        console.log("Keilahallien haku epäonnistui:", e);
+      }
+    };
+    fetchHalls();
+  }, []);
 
   // Keilaajien haku tulosdialogia varten
   useEffect(() => {
@@ -263,6 +286,7 @@ const ManageSeasonGpsScreen: React.FC = () => {
         onDismiss={closeDialog}
         onSubmit={handleSubmitForm}
         submitting={submitting}
+        keilahallit={keilahallit}
       />
 
       {/* GP-tulosten syöttö */}
