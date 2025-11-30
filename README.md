@@ -28,6 +28,6 @@
 
 ### axios
 	HTTP-kirjasto API-kutsuihin (GET/POST/PUT/DELETE backendin REST-rajapintaan).
-### zustand
 
+### zustand
 	Kevyt tilanhallintakirjasto (AuthStore, RefreshStore: esim. standings/calendar/home refresh -flägien hallinta).
