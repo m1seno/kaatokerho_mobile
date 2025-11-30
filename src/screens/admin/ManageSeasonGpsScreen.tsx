@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { View, FlatList, Alert } from "react-native";
 import { ActivityIndicator, Button, Text } from "react-native-paper";
-import { layout } from "../../styles/layout";
 
+import { layout } from "../../styles/layout";
 import {
   Gp,
   getGpsBySeason,
@@ -44,8 +44,12 @@ const ManageSeasonGpsScreen: React.FC = () => {
 
   // Refresh-storejen setterit
   const setHomeNeedsRefresh = HomeRefreshStore((s) => s.setNeedsRefresh);
-  const setStandingsNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
-  const setCalendarNeedsRefresh = CalendarRefreshStore((s) => s.setNeedsRefresh);
+  const setStandingsNeedsRefresh = StandingsRefreshStore(
+    (s) => s.setNeedsRefresh
+  );
+  const setCalendarNeedsRefresh = CalendarRefreshStore(
+    (s) => s.setNeedsRefresh
+  );
 
   const [keilahallit, setKeilahallit] = useState<Keilahalli[]>([]);
   const [gps, setGps] = useState<Gp[]>([]);

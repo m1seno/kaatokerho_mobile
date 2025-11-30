@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, ScrollView, View } from "react-native";
-import { ActivityIndicator, DataTable, Text } from "react-native-paper";
+import { FlatList, View } from "react-native";
+import { ActivityIndicator, Text } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { appColors } from "../styles";
 import { Season, getCurrentSeason } from "../services/seasonService";

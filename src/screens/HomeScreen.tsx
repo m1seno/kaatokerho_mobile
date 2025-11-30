@@ -178,7 +178,7 @@ const HomeScreen: React.FC = () => {
         <Card.Title title="Kuppiksen Kunkku" titleVariant="titleLarge" />
         <Card.Content>
           <Text style={{ fontWeight: "bold" }}>
-            Hallitseva: {currentChampion.puolustajaNimi}
+            Hallitseva: {currentChampion.voittajaNimi}
           </Text>
           <Text style={{ fontWeight: "bold", marginTop: 8 }}>Haastajat:</Text>
 
