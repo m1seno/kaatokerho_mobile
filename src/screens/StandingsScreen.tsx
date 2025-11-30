@@ -18,7 +18,7 @@ const StandingsScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const needsRefresh = StandingsRefreshStore((s) => s.needsRefresh);
-    const setNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
+  const setNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
 
   const fetchStandings = async () => {
     setLoading(true);

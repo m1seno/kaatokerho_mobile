@@ -3,7 +3,7 @@ import { ScrollView, View } from "react-native";
 import { Text, Card, ActivityIndicator } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { useAuthStore } from "../store/AuthStore";
-import { getCurrentSeason, } from "../services/seasonService";
+import { getCurrentSeason } from "../services/seasonService";
 import {
   getCurrentStandings,
   StandingsRow,
@@ -17,6 +17,7 @@ import {
   CurrentChampion,
 } from "../services/kuppiksenKunkkuService";
 import { formatDateFi } from "../utils/date";
+import { HomeRefreshStore } from "../store/refreshStore";
 
 type SeasonSummary = {
   sija: number;
@@ -39,50 +40,55 @@ const HomeScreen: React.FC = () => {
   const [currentChampion, setCurrentChampion] =
     useState<CurrentChampion | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const season = await getCurrentSeason();
-        // Haetaan samanaikaisesti sarjataulukko ja seuraava GP
-        const [standings, nextGp, currentChampion, ChallengerList] =
-          await Promise.all([
-            getCurrentStandings(),
-            getNextGp(),
-            getCurrentChampion(String(season.nimi)),
-            getCurrentChallengerList(),
-          ]);
+  const needsRefresh = HomeRefreshStore((s) => s.needsRefresh);
+  const setNeedsRefresh = HomeRefreshStore((s) => s.setNeedsRefresh);
 
-        // Etsi käyttäjän sijoitus sarjataulukosta
-        const userStanding = standings.find(
-          (row: StandingsRow) => row.keilaajaId === user.keilaajaId
-        );
-
-        // Päivitä käyttäjän kausiyhteenveto
-        if (userStanding) {
-          setSeasonSummary({
-            sija: userStanding.sija,
-            pisteet: userStanding.pisteet,
-            kaSarja: userStanding.kaSarja,
-          });
-        } else {
-          setSeasonSummary(null);
-        }
-        setNextGp(nextGp);
-        setChallengerList(ChallengerList);
-        setCurrentChampion(currentChampion);
-      } catch (e) {
-        console.log("HomeScreen fetchData error:", e);
-        setError("Tietojen hakeminen epäonnistui.");
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const season = await getCurrentSeason();
+      // Haetaan samanaikaisesti sarjataulukko ja seuraava GP
+      const [standings, nextGp, currentChampion, ChallengerList] =
+      await Promise.all([
+        getCurrentStandings(),
+        getNextGp(),
+        getCurrentChampion(String(season.nimi)),
+        getCurrentChallengerList(),
+      ]);
+      
+      // Etsi käyttäjän sijoitus sarjataulukosta
+      const userStanding = standings.find(
+        (row: StandingsRow) => row.keilaajaId === user.keilaajaId
+      );
+      
+      // Päivitä käyttäjän kausiyhteenveto
+      if (userStanding) {
+        setSeasonSummary({
+          sija: userStanding.sija,
+          pisteet: userStanding.pisteet,
+          kaSarja: userStanding.kaSarja,
+        });
+      } else {
+        setSeasonSummary(null);
       }
-    };
-
+      setNextGp(nextGp);
+      setChallengerList(ChallengerList);
+      setCurrentChampion(currentChampion);
+    } catch (e) {
+      console.log("HomeScreen fetchData error:", e);
+      setError("Tietojen hakeminen epäonnistui.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    if (!needsRefresh) return;
     fetchData();
-  }, [user]);
+    setNeedsRefresh(false)
+  }, [user, needsRefresh, setNeedsRefresh]);
 
   // Kausikortti-komponentti renderöidään
   const renderSeasonCard = () => {
@@ -167,38 +173,42 @@ const HomeScreen: React.FC = () => {
       );
     }
 
-      return (
-        <Card style={{ marginBottom: 16 }}>
-          <Card.Title title="Kuppiksen Kunkku" titleVariant="titleLarge" />
-          <Card.Content>
-            <Text style={{ fontWeight: "bold" }}>
-              Hallitseva: {currentChampion.puolustajaNimi}
-            </Text>
-            <Text style={{ fontWeight: "bold", marginTop: 8 }}>
-              Haastajat:
-            </Text>
+    return (
+      <Card style={{ marginBottom: 16 }}>
+        <Card.Title title="Kuppiksen Kunkku" titleVariant="titleLarge" />
+        <Card.Content>
+          <Text style={{ fontWeight: "bold" }}>
+            Hallitseva: {currentChampion.puolustajaNimi}
+          </Text>
+          <Text style={{ fontWeight: "bold", marginTop: 8 }}>Haastajat:</Text>
 
-            {challengerList.haastajat.length === 0 && (
-              <Text>Ensimmäinen Gp ei sisällä haastajia.</Text>
-            )}
+          {challengerList.haastajat.length === 0 && (
+            <Text>Ensimmäinen Gp ei sisällä haastajia.</Text>
+          )}
 
-            {challengerList.haastajat.map((haastaja: Challenger, index) => (
-              <View key={haastaja.keilaajaId} style={{flexDirection: "row", justifyContent: "space-between",alignItems: "center", marginVertical: 2}}>
+          {challengerList.haastajat.map((haastaja: Challenger, index) => (
+            <View
+              key={haastaja.keilaajaId}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginVertical: 2,
+              }}
+            >
+              <Text style={{ flex: 1 }}>
+                {index + 1}. {haastaja.nimi}
+              </Text>
 
-                <Text style={{ flex: 1 }}>
-                  {index + 1}. {haastaja.nimi}
-                </Text>
-
-                <Text style={{ textAlign: "right" }}>
-                  {haastaja.sarja1}
-                  <Text> ({haastaja.sarja2})</Text>
-                </Text>
-              </View>
-            ))}
-
-          </Card.Content>
-        </Card>
-      );
+              <Text style={{ textAlign: "right" }}>
+                {haastaja.sarja1}
+                <Text> ({haastaja.sarja2})</Text>
+              </Text>
+            </View>
+          ))}
+        </Card.Content>
+      </Card>
+    );
   };
 
   return (

@@ -44,12 +44,8 @@ const ManageSeasonGpsScreen: React.FC = () => {
 
   // Refresh-storejen setterit
   const setHomeNeedsRefresh = HomeRefreshStore((s) => s.setNeedsRefresh);
-  const setStandingsNeedsRefresh = StandingsRefreshStore(
-    (s) => s.setNeedsRefresh
-  );
-  const setCalendarNeedsRefresh = CalendarRefreshStore(
-    (s) => s.setNeedsRefresh
-  );
+  const setStandingsNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
+  const setCalendarNeedsRefresh = CalendarRefreshStore((s) => s.setNeedsRefresh);
 
   const [keilahallit, setKeilahallit] = useState<Keilahalli[]>([]);
   const [gps, setGps] = useState<Gp[]>([]);
@@ -146,6 +142,8 @@ const ManageSeasonGpsScreen: React.FC = () => {
               Alert.alert("Virhe", "GP:n poistaminen epäonnistui.");
             } finally {
               setCalendarNeedsRefresh(true);
+              setHomeNeedsRefresh(true);
+              setStandingsNeedsRefresh(true);
             }
           },
         },
@@ -182,6 +180,8 @@ const ManageSeasonGpsScreen: React.FC = () => {
     } finally {
       setSubmitting(false);
       setCalendarNeedsRefresh(true);
+      setHomeNeedsRefresh(true);
+      setStandingsNeedsRefresh(true);
     }
   };
 
@@ -210,6 +210,10 @@ const ManageSeasonGpsScreen: React.FC = () => {
             } catch (e) {
               console.log("deleteResultsForGp error:", e);
               Alert.alert("Virhe", "Tulosten poistaminen epäonnistui.");
+            } finally {
+              setCalendarNeedsRefresh(true);
+              setHomeNeedsRefresh(true);
+              setStandingsNeedsRefresh(true);
             }
           },
         },
