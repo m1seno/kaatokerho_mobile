@@ -9,12 +9,16 @@ import {
   getCurrentStandings,
 } from "../services/standingsService";
 import StandingsListItem from "../components/standings/StandingsListItem";
+import { StandingsRefreshStore } from "../store/refreshStore";
 
 const StandingsScreen: React.FC = () => {
   const [standings, setStandings] = useState<StandingsRow[]>([]);
   const [season, setSeason] = useState<Season | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const needsRefresh = StandingsRefreshStore((s) => s.needsRefresh);
+    const setNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
 
   const fetchStandings = async () => {
     setLoading(true);
@@ -35,8 +39,10 @@ const StandingsScreen: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!needsRefresh) return;
     fetchStandings();
-  }, []);
+    setNeedsRefresh(false);
+  }, [needsRefresh, setNeedsRefresh]);
 
   const hasData = useMemo(() => standings.length > 0, [standings]);
 

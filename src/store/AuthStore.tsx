@@ -27,7 +27,7 @@ type AuthState = {
   restoreSession: () => Promise<void>;
 };
 
-// Luodaan globaali useState, jota voidaan käyttää missä tahansa komponentissa
+// Luodaan "globaali useState", jota voidaan käyttää missä tahansa komponentissa
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   accessToken: null,

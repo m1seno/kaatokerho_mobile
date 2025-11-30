@@ -16,6 +16,7 @@ import {
 import KeilaajaListItem from "../../components/admin/KeilaajaListitem";
 import KeilaajaFormDialog from "../../components/admin/KeilaajaFormDialog";
 import { toIsoFromFi } from "../../utils/date";
+import { StandingsRefreshStore } from "../../store/refreshStore";
 
 const ManageKeilaajatScreen: React.FC = () => {
   const [keilaajat, setKeilaajat] = useState<Keilaaja[]>([]);
@@ -25,6 +26,8 @@ const ManageKeilaajatScreen: React.FC = () => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editingKeilaaja, setEditingKeilaaja] = useState<Keilaaja | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const setNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
 
   const loadKeilaajat = async () => {
     setLoading(true);
@@ -78,6 +81,8 @@ const ManageKeilaajatScreen: React.FC = () => {
             } catch (e) {
               console.log("deleteKeilaaja error:", e);
               Alert.alert("Virhe", "Keilaajan poistaminen epäonnistui.");
+            } finally {
+              setNeedsRefresh(true);
             }
           },
         },
@@ -138,6 +143,7 @@ const ManageKeilaajatScreen: React.FC = () => {
       );
     } finally {
       setSubmitting(false);
+      setNeedsRefresh(true);
     }
   };
 

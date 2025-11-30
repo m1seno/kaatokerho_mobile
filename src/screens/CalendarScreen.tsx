@@ -12,6 +12,7 @@ import {
 } from "../services/calendarService";
 import { CalendarStackParamList } from "../navigation/CalendarNavigator";
 import GpListItem from "../components/schedule/GpListItem";
+import { CalendarRefreshStore } from "../store/refreshStore";
 
 const CalendarScreen: React.FC = () => {
   const navigation =
@@ -20,6 +21,9 @@ const CalendarScreen: React.FC = () => {
   const [season, setSeason] = useState<Season | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const needsRefresh = CalendarRefreshStore((s) => s.needsRefresh);
+  const setNeedsRefresh = CalendarRefreshStore((s) => s.setNeedsRefresh);
 
   const fetchCalendar = async () => {
     setLoading(true);
@@ -40,8 +44,10 @@ const CalendarScreen: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!needsRefresh) return;
     fetchCalendar();
-  }, []);
+    setNeedsRefresh(false);
+  }, [needsRefresh, setNeedsRefresh]);
 
   const averageWinnerScore = useMemo(() => {
     const scores = calendar

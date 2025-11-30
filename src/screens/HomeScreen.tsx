@@ -3,7 +3,7 @@ import { ScrollView, View } from "react-native";
 import { Text, Card, ActivityIndicator } from "react-native-paper";
 import { layout } from "../styles/layout";
 import { useAuthStore } from "../store/AuthStore";
-import { getCurrentSeason, Season } from "../services/seasonService";
+import { getCurrentSeason, } from "../services/seasonService";
 import {
   getCurrentStandings,
   StandingsRow,
@@ -38,7 +38,6 @@ const HomeScreen: React.FC = () => {
   );
   const [currentChampion, setCurrentChampion] =
     useState<CurrentChampion | null>(null);
-  const [currentSeason, setCurrentSeason] = useState<Season | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {

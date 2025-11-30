@@ -17,8 +17,20 @@ import GpAdminListItem from "../../components/admin/GpAdminListItem";
 import GpFormDialog, {
   GpFormValues,
 } from "../../components/admin/GpFormDialog";
+
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { AdminStackParamList } from "../../navigation/AdminNavigator";
+
+import {
+  CalendarRefreshStore,
+  HomeRefreshStore,
+  StandingsRefreshStore,
+} from "../../store/refreshStore";
+
+import { Keilaaja, fetchAllKeilaajat } from "../../services/keilaajaService";
+
+import ResultsFormDialog from "../../components/admin/ResultsFormDialog";
+import { deleteResultsForGp } from "../../services/resultsService";
 
 type RouteParams = RouteProp<AdminStackParamList, "ManageSeasonGps">;
 
@@ -26,14 +38,27 @@ const ManageSeasonGpsScreen: React.FC = () => {
   const route = useRoute<RouteParams>();
   const { kausiId, kausiNimi } = route.params;
 
+  // Refresh-storejen setterit
+  const setHomeNeedsRefresh = HomeRefreshStore((s) => s.setNeedsRefresh);
+  const setStandingsNeedsRefresh = StandingsRefreshStore((s) => s.setNeedsRefresh);
+  const setCalendarNeedsRefresh = CalendarRefreshStore((s) => s.setNeedsRefresh);
+
   const [gps, setGps] = useState<Gp[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // GP-lisäys/muokkaus -dialogi
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editingGp, setEditingGp] = useState<Gp | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Tulosten syöttö/poisto
+  const [resultsDialogVisible, setResultsDialogVisible] = useState(false);
+  const [selectedGpForResults, setSelectedGpForResults] = useState<Gp | null>(null);
+  const [allKeilaajat, setAllKeilaajat] = useState<Keilaaja[]>([]);
+  const [submittingResults, setSubmittingResults] = useState(false);
+
+  // GP-listan haku
   const loadGps = async () => {
     setLoading(true);
     setError(null);
@@ -51,6 +76,19 @@ const ManageSeasonGpsScreen: React.FC = () => {
   useEffect(() => {
     loadGps();
   }, [kausiId]);
+
+  // Keilaajien haku tulosdialogia varten
+  useEffect(() => {
+    const loadKeilaajat = async () => {
+      try {
+        const data = await fetchAllKeilaajat();
+        setAllKeilaajat(data);
+      } catch (e) {
+        console.log("Keilaajien haku epäonnistui:", e);
+      }
+    };
+    loadKeilaajat();
+  }, []);
 
   const openAddDialog = () => {
     setEditingGp(null);
@@ -83,6 +121,8 @@ const ManageSeasonGpsScreen: React.FC = () => {
             } catch (e) {
               console.log("deleteGp error:", e);
               Alert.alert("Virhe", "GP:n poistaminen epäonnistui.");
+            } finally {
+              setCalendarNeedsRefresh(true);
             }
           },
         },
@@ -115,31 +155,56 @@ const ManageSeasonGpsScreen: React.FC = () => {
       closeDialog();
     } catch (e) {
       console.log("save GP error:", e);
-      Alert.alert(
-        "Virhe",
-        "GP:n tallentaminen epäonnistui."
-      );
+      Alert.alert("Virhe", "GP:n tallentaminen epäonnistui.");
     } finally {
       setSubmitting(false);
+      setCalendarNeedsRefresh(true);
     }
   };
 
+  // Tulokset syöttö ja poisto
   const handleEnterResults = (gp: Gp) => {
-    // Placeholder
-    console.log("Enter results for GP", gp.gpId);
-    Alert.alert(
-      "Tulokset",
-      `Tähän kohtaan myöhemmin tulosten syöttö GP #${gp.jarjestysnumero}.`
-    );
+    setSelectedGpForResults(gp);
+    setResultsDialogVisible(true);
   };
 
   const handleDeleteResults = (gp: Gp) => {
-    // Placeholder
-    console.log("Delete results for GP", gp.gpId);
     Alert.alert(
       "Poista tulokset",
-      `Tähän kohtaan myöhemmin tulosten poistaminen GP #${gp.jarjestysnumero}.`
+      `Haluatko varmasti poistaa kaikki tulokset GP #${gp.jarjestysnumero}?`,
+      [
+        { text: "Peruuta", style: "cancel" },
+        {
+          text: "Poista",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteResultsForGp(gp.gpId);
+              // Päivitetään etusivu, sarjataulukko ja kalenteri
+              setHomeNeedsRefresh(true);
+              setStandingsNeedsRefresh(true);
+              setCalendarNeedsRefresh(true);
+            } catch (e) {
+              console.log("deleteResultsForGp error:", e);
+              Alert.alert("Virhe", "Tulosten poistaminen epäonnistui.");
+            }
+          },
+        },
+      ]
     );
+  };
+
+  const closeResultsDialog = () => {
+    setResultsDialogVisible(false);
+    setSelectedGpForResults(null);
+  };
+
+  const handleResultsSaved = () => {
+    // Tulosten tallennus päivittää backendissä KuppiksenKunkun, kultaisen GP:n, KeilaajaKausi-tilastot jne.
+    // Päivitetään näkymät
+    setHomeNeedsRefresh(true);
+    setStandingsNeedsRefresh(true);
+    setCalendarNeedsRefresh(true);
   };
 
   return (
@@ -191,12 +256,24 @@ const ManageSeasonGpsScreen: React.FC = () => {
         }
       />
 
+      {/* GP:n lisääminen / muokkaaminen */}
       <GpFormDialog
         visible={dialogVisible}
         editingGp={editingGp}
         onDismiss={closeDialog}
         onSubmit={handleSubmitForm}
         submitting={submitting}
+      />
+
+      {/* GP-tulosten syöttö */}
+      <ResultsFormDialog
+        visible={resultsDialogVisible}
+        gp={selectedGpForResults}
+        keilaajat={allKeilaajat}
+        onDismiss={closeResultsDialog}
+        onSaved={handleResultsSaved}
+        submitting={submittingResults}
+        setSubmitting={setSubmittingResults}
       />
     </View>
   );
