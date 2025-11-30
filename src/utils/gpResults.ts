@@ -59,3 +59,18 @@ export const computeGpResults = (result: Results[]): GpResultsRow[] => {
 
   return ranked;
 };
+
+export const createTextReport = (title: string, rows: GpResultsRow[]): string => {
+  if (!rows.length) return `${title}\n\nEi tuloksia.`
+
+  const winner = rows[0];
+  const header = `${title}`;
+  const winnerLine = `Voittaja: ${winner.nimi} (${winner.yhteensa} p)`;
+
+  const lines = rows.map((r) => {
+    const ero = r.eroVoittajaan === 0 ? "" : ` (+${r.eroVoittajaan})`;
+    return `${r.sija}. ${r.nimi} – ${r.yhteensa} p${ero}`;
+  });
+
+  return `${header}\n\n${winnerLine}\n\nTulokset:\n${lines.join("\n")}`;
+};

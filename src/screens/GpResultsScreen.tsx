@@ -1,15 +1,15 @@
 // src/screens/GpResultsScreen.tsx
 
 import React, { useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
-import { ActivityIndicator, DataTable, Text } from "react-native-paper";
+import { ScrollView, Share, View } from "react-native";
+import { Button, ActivityIndicator, DataTable, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import { RouteProp } from "@react-navigation/native";
 
 import { layout } from "../styles/layout";
 import { appColors } from "../styles";
 import { getResultsByGpId, Results } from "../services/resultsService";
-import { computeGpResults, GpResultsRow } from "../utils/gpResults";
+import { computeGpResults, GpResultsRow, createTextReport } from "../utils/gpResults";
 
 type RootStackParamList = {
   GpResults: { gpId: number; title: string };
@@ -44,6 +44,12 @@ const GpResultsScreen: React.FC = () => {
     fetchResults();
   }, [gpId]);
 
+  // Share-nappi – muodostetaan tekstiraportti
+  const handleShare = async () => {
+  const message = createTextReport(title, rows);
+  await Share.share({ message });
+};
+
   return (
     <ScrollView
       style={layout.container}
@@ -52,6 +58,10 @@ const GpResultsScreen: React.FC = () => {
       <Text variant="headlineMedium" style={{ marginBottom: 8 }}>
         {title ?? `GP #${gpId} tulokset`}
       </Text>
+
+      <Button mode="contained-tonal" onPress={handleShare}>
+          Jaa tulokset
+        </Button>
 
       {loading && (
         <View style={[layout.center, { marginTop: 32 }]}>
